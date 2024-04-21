@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Material Design Bootstrap</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- Material Design Bootstrap -->
+  <link href="css/mdb.min.css" rel="stylesheet">
+  <!-- Your custom styles (optional) -->
+  <link href="css/style.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!--Main Navigation-->
+  <header>
+
+    <!-- Navbar -->
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
+      <div class="container">
+
+        <!-- Brand -->
+       
+
+        <!-- Collapse -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Links -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+          <!-- Left -->
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link waves-effect" href="#">Home
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li class="nav-item">
+
+              <input type="text" id="myTextField" name="myTextField" placeholder="Search Here">
+              <a id = "validate" class="nav-link waves-effect" target="_blank">Confirm</a>
+              <style>
+                /* Style for the blue square */
+#validate {
+    background-color: rgb(0, 187, 255);
+    transition: background-color 0.3s ease;
+}
+
+/* Style for the blue square when confirmed */
+#validate.confirm {
+    background-color: dodgerblue;
+}
+
+              </style>
+            </li>
+           
+          </ul>
+
+          <!-- Right -->
+         
+
+        </div>
+
+      </div>
+    </nav>
+    <!-- Navbar -->
+
+  </header>
+  <!--Main Navigation-->
+
+  <!--Main layout-->
+  <main class="mt-5 pt-5">
+    <div class="container">
+
+      <!--Section: Jumbotron-->
+   
+      <!--Section: Jumbotron-->
+
+      <hr class="my-5">
+      <script>
+        var SearchVariable = "Tesla";
+        var ApiKey = process.env.API_KEY;
+    const xhr = new XMLHttpRequest();
+xhr.open("GET", "https://newsapi.org/v2/everything?q=tesla&sortBy=publishedAt&apiKey="+ApiKey, true);
+console.log("Working");
+
+function ShowArticles(responseData){
+  const parentElement = document.getElementById('Template').parentNode;
+  var coutner = 0;
+
+  console.log(responseData);
+  for (let i = 0; i <= 60; i++) {
+            const obj = responseData.articles[i];
+            // Skip if image URL is missing or if title is duplicated
+            if (!obj.urlToImage || isTitleDuplicate(obj.title, parentElement)) {
+              continue;
+            }else if(coutner > 20){
+              break;
+            }
+            console.log("YES");
+            coutner++;
+            const template = document.getElementById('Template').cloneNode(true);
+            template.setAttribute('id', 'newId');
+
+            parentElement.appendChild(template);
+            template.style.display = "block";
+            // Update the image source
+            const image = template.querySelector('img');
+            image.src = obj.urlToImage;
+
+            // Update the title
+            const title = template.querySelector('h3 strong');
+
+// Create an anchor element
+const link = document.createElement('a');
+
+// Set the href attribute to the desired URL
+link.href = obj.url;
+
+// Set the text content of the anchor to the title text
+link.textContent = obj.title;
+
+// Clear the title text content
+title.textContent = '';
+
+// Append the anchor element to the title element
+title.appendChild(link);
+
+            const date = new Date(obj.publishedAt);
+
+            // Extract day, month, and year components
+            const day = date.getDate(); // Get the day (1-31)
+            const month = date.getMonth() + 1; // Get the month (0-11), add 1 to get 1-12
+            const year = date.getFullYear(); // Get the full year (e.g., 2024)
+
+            // Update the excerpt text
+            const excerpt = template.querySelector('p');
+            excerpt.textContent = day + "/" + month + "/" + year;
+
+            // Update the category
+            const category = template.querySelector('.news-data h6 strong');
+            category.textContent = obj.author;
+
+            const contentElement = template.querySelector('.Content');
+            contentElement.textContent = obj.content;
+        }
+}
+xhr.onload = () => {
+    // Check if the request was successful
+    if (xhr.status >= 200 && xhr.status < 300) {
+      document.getElementById('Template').style.display = "none";
+
+        // Parse the JSON response
+        const responseData = JSON.parse(xhr.responseText);
+
+        const button = document.querySelector('.pt-4');
+
+// Add an event listener for the 'click' event
+button.addEventListener('click', function(event) {
+    // Check if the clicked element is the button
+    if (event.target.classList.contains('btn-outline-white')) {
+        // Run your function here
+       ShowArticles(responseData);
+    }
+});
+
+        ShowArticles(responseData);
+     
+     
+    } else {
+        console.error('Request failed with status:', xhr.status);
+    }
+};
+const element = document.getElementById('validate');
+element.addEventListener('click', function(event) {
+    // Check if the clicked element is the button
+    const elementsToDelete = document.querySelectorAll('[id="newId"]');
+
+// Loop through each element and remove it
+elementsToDelete.forEach(element => {
+    element.parentNode.removeChild(element);
+});
+var keyToLook = document.getElementById("myTextField").value;
+const xhr = new XMLHttpRequest();
+xhr.open("GET", `https://newsapi.org/v2/everything?q=${keyToLook}&sortBy=publishedAt&apiKey="+ApiKey`, true);
+
+xhr.onload = () => {
+    // Check if the request was successful
+    if (xhr.status >= 200 && xhr.status < 300) {
+      document.getElementById('Template').style.display = "none";
+
+        // Parse the JSON response
+        const responseData = JSON.parse(xhr.responseText);
+
+        const button = document.querySelector('.pt-4');
+
+// Add an event listener for the 'click' event
+button.addEventListener('click', function(event) {
+    // Check if the clicked element is the button
+    if (event.target.classList.contains('btn-outline-white')) {
+        // Run your function here
+       ShowArticles(responseData);
+    }
+});
+
+        ShowArticles(responseData);
+     
+     
+    } else {
+        console.error('Request failed with status:', xhr.status);
+    }
+};
+
+xhr.send();
+
+});
+
+xhr.onerror = () => {
+    console.error('Request failed');
+};
+
+xhr.send();
+
+// Function to check if the title is duplicated
+function isTitleDuplicate(title, parentElement) {
+    const titles = parentElement.querySelectorAll('h3 strong');
+    for (let i = 0; i < titles.length; i++) {
+        if (titles[i].textContent === title) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+      </script>
+      <!--Section: Magazine v.1-->
+      <section class="wow fadeIn">
+
+        <!--Section heading-->
+        <h2 class="h1 text-center my-5 font-weight-bold">Magazine NewsFeed</h2>
+
+        <!--Grid row-->
+        <div class="row text-left">
+
+          <!--Grid column-->
+          <div id = "Template" class="col-lg-6 col-md-12">
+
+            <!--Image-->
+            <div class="view overlay rounded z-depth-1-half mb-3">
+              <img src="https://mdbootstrap.com/img/Photos/Others/images/77.jpg" class="img-fluid" alt="Sample post image">
+              <a>
+                <div class="mask rgba-white-slight"></div>
+              </a>
+            </div>
+
+            <!--Excerpt-->
+            <div class="news-data">
+              <a href="" class="light-blue-text">
+                <h6>
+                  <strong> Travels</strong>
+                </h6>
+              </a>
+              <p>
+                <strong>
+                  <i class="far fa-clock"></i> 20/08/2018</strong>
+              </p>
+            </div>
+            <h3>
+              <a>
+                <strong>This is title of the news</strong>
+              </a>
+            </h3>
+            <p class="Content"> Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime
+              placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.
+            </p>
+
+            <!--/Featured news-->
+
+            <hr>
+
+            <!--Small news-->
+         
+          <!--Grid column-->
+
+          <!--Grid column-->
+        
+          <!--Grid column-->
+
+        </div>
+        
+        <!--Grid row-->
+
+      </section>
+      <!--/Section: Magazine v.1-->
+
+
+    </div>
+  </main>
+  <!--Main layout-->
+
+  <!--Footer-->
+  <footer class="page-footer text-center font-small mdb-color darken-2 mt-4 wow fadeIn">
+
+    <!--Call to action-->
+    <div class="pt-4">
+      <a class="btn btn-outline-white" target="_blank"
+        role="button">Show More
+        <i class="fas  ml-2"></i>
+      </a>
+     
+    </div>
+    <!--/.Call to action-->
+
+  
+
+  </footer>
+  <!--/.Footer-->
+
+  <!-- SCRIPTS -->
+  <!-- JQuery -->
+  <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="js/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="js/mdb.min.js"></script>
+  <!-- Initializations -->
+  <script type="text/javascript">
+    // Animations initialization
+    new WOW().init();
+
+  </script>
+</body>
+
+</html>
